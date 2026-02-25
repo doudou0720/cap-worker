@@ -1071,7 +1071,7 @@
 				}
 			}
 		</style>
-		<script src="https://captcha.gurl.eu.org/cap.min.js"></script>
+		<script src="cap.min.js"></script>
 	</head>
 	<body>
 		<div class="bg-animated"></div>
@@ -1115,7 +1115,7 @@
 							<h3>Interactive Demo</h3>
 							<div class="demo-widget">
 								<div class="demo-widget-container">
-									<cap-widget id="cap" data-cap-api-endpoint="https://captcha.gurl.eu.org/api/"></cap-widget>
+									<cap-widget id="cap" data-cap-api-endpoint="api/"></cap-widget>
 								</div>
 								<div class="demo-status" id="demoStatus">
 									<div class="status-message">Complete the CAPTCHA above to see it in action</div>
@@ -1448,7 +1448,7 @@ widget.addEventListener(<span class="string">"solve"</span>, <span class="key">a
 						console.log('CAPTCHA solved, token:', token);
 
 						try {
-							const result = await fetch('https://captcha.gurl.eu.org/api/validate', {
+							const result = await fetch('api/validate', {
 								method: 'POST',
 								headers: { 'Content-Type': 'application/json' },
 								body: JSON.stringify({
