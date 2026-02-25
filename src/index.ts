@@ -43,6 +43,13 @@ const CORS_HEADERS = {
 
 const CLEANUP_INTERVAL_MS = 60 * 1000; // 1 minute
 
+//=====CHANGE==HERE=====
+const CHALLENGE_CONFIG = {
+  challengeCount: 50,
+  challengeSize: 32,
+  challengeDifficulty: 4,
+} as const;
+
 
 // Storage Durable Object implementation that hosts a single Cap instance
 export class CapStorageDurableObject extends DurableObject {
@@ -152,7 +159,7 @@ function createCapInstance() {
   });
 }
 
-function createChallenge(options?: any) {
+function createChallenge(options?: { challengeCount?: number; challengeSize?: number; challengeDifficulty?: number; expiresMs?: number; store?: boolean }) {
   const cap = createCapInstance();
   return cap.createChallenge(options);
 }
@@ -196,7 +203,7 @@ export default {
     // Route: POST /api/challenge
     if (request.method === "POST" && url.pathname === CHALLENGE_PATH) {
       // Create challenge directly in Worker
-      const challenge = createChallenge();
+      const challenge = createChallenge(CHALLENGE_CONFIG);
       
       // Store challenge in storage instance (check if token exists)
       if (challenge.token) {

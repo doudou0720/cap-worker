@@ -452,7 +452,7 @@ cd cap-worker
 
 2. 安装依赖：
 ```bash
-npm install
+pnpm install
 ```
 
 3. 配置 Wrangler：
@@ -462,14 +462,15 @@ wrangler auth login
 
 4. 启动开发服务器：
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 #### 脚本命令
 
-- `npm run dev` - 启动开发服务器
-- `npm run deploy` - 部署到 Cloudflare Workers
-- `npm run start` - dev 命令的别名
+- `pnpm run dev` - 启动开发服务器
+- `pnpm run deploy` - 部署到 Cloudflare Workers
+- `pnpm run start` - dev 命令的别名
+- `pnpm run cf-typegen` - 生成 TypeScript 类型
 
 ### 🚀 部署
 
@@ -482,7 +483,7 @@ npm run dev
 
 2. 部署到 Cloudflare Workers：
 ```bash
-npm run deploy
+pnpm run deploy
 ```
 
 ### 📁 项目结构
@@ -511,3 +512,4 @@ cap-worker/
 - [在线演示](https://captcha.gurl.eu.org/)
 - [Cloudflare Workers](https://workers.cloudflare.com/)
 - [@cap.js/server](https://www.npmjs.com/package/@cap.js/server) 
+- [@cap.js/client](https://www.npmjs.com/package/@cap.js/client)

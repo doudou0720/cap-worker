@@ -1,12 +1,306 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CAP Worker Service</title>
-  <link rel="stylesheet" href="style.css">
+  <script>
+    window.CAP_CUSTOM_WASM_URL = 'https://registry.npmmirror.com/@cap.js/wasm/0.0.6/files/browser/cap_wasm.js';
+  </script>
+  <style>
+:root {
+  --text-primary: #1d1d1f;
+  --text-secondary: rgba(29, 29, 31, 0.72);
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f7;
+  --border-light: rgba(60, 60, 67, 0.18);
+  --brand-color: #0071e3;
+  --success-color: #34c759;
+  --error-color: #ff453a;
+}
 
+[data-theme="dark"] {
+  --text-primary: #f5f5f7;
+  --text-secondary: rgba(235, 235, 245, 0.7);
+  --bg-primary: rgba(30, 30, 32, 0.88);
+  --bg-secondary: #000000;
+  --border-light: rgba(235, 235, 245, 0.2);
+  --brand-color: #0a84ff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.65;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-light);
+}
+
+[data-theme="dark"] .navbar {
+  background: rgba(22, 22, 24, 0.8);
+}
+
+.navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.theme-toggle {
+  padding: 8px 12px;
+  border: 1px solid var(--border-light);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.header {
+  text-align: center;
+  padding: 80px 0 48px;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.header p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 24px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-light);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  text-decoration: none;
+  margin: 0 8px;
+}
+
+.btn:hover {
+  background: var(--bg-secondary);
+}
+
+.btn.primary {
+  background: var(--brand-color);
+  color: #fff;
+  border-color: transparent;
+}
+
+.content {
+  background: var(--bg-primary);
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 40px;
+  border: 1px solid var(--border-light);
+}
+
+.section h2 {
+  margin-bottom: 24px;
+  font-size: 1.8rem;
+}
+
+.section p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.demo-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.demo-section, .integration-section {
+  background: var(--bg-secondary);
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid var(--border-light);
+}
+
+.demo-section h3, .integration-section h3 {
+  margin-bottom: 16px;
+}
+
+.demo-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+cap-widget {
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+cap-widget[data-cap-floating] {
+  display: none;
+}
+
+.demo-status {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.demo-actions {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.status-success {
+  color: var(--success-color);
+}
+
+.status-error {
+  color: var(--error-color);
+}
+
+.code-tabs {
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tab-buttons {
+  display: flex;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-right: 1px solid var(--border-light);
+}
+
+.tab-btn:last-child {
+  border-right: none;
+}
+
+.tab-btn:hover {
+  background: var(--bg-primary);
+}
+
+.tab-btn.active {
+  background: var(--bg-primary);
+  font-weight: 600;
+}
+
+.tab-content {
+  display: none;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.code-block {
+  background: var(--bg-secondary);
+  padding: 16px;
+  border-radius: 8px;
+  font-family: 'SF Mono', 'Monaco', monospace;
+  font-size: 0.9rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+.api-endpoint {
+  background: var(--bg-secondary);
+  padding: 24px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-light);
+}
+
+.method {
+  display: inline-block;
+  background: var(--brand-color);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.endpoint-url {
+  font-family: 'SF Mono', 'Monaco', monospace;
+  background: var(--bg-primary);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.footer {
+  text-align: center;
+  color: var(--text-secondary);
+  margin: 40px 0;
+}
+
+@media (max-width: 768px) {
+  .demo-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+}
+  </style>
 </head>
+
 <body>
   <nav class="navbar">
     <div class="navbar-inner">
@@ -14,7 +308,7 @@
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme"></button>
     </div>
   </nav>
-  
+
   <div class="container">
     <div class="header">
       <h1>CAP Worker Service</h1>
@@ -25,12 +319,12 @@
         <a href="#api" class="btn">API Reference</a>
       </div>
     </div>
-    
+
     <div class="content">
       <div class="section" id="integration">
         <h2>Live Demo & Integration</h2>
         <p>Experience CAP Worker in action and see how easy it is to integrate.</p>
-        
+
         <div class="demo-container">
           <div class="demo-section">
             <h3>Inline Mode</h3>
@@ -44,18 +338,15 @@
               <button id="resetCaptcha" class="btn">Reset CAPTCHA</button>
             </div>
           </div>
-          
+
           <div class="integration-section">
             <h3>Floating Mode</h3>
             <div class="demo-status" id="floatingStatus">
               <div class="status-message">Click the button below to trigger floating CAPTCHA</div>
             </div>
             <div class="demo-actions">
-              <cap-widget 
-                id="floating" 
-                onsolve="console.log(`token: ${event.detail.token}`)" 
-                data-cap-api-endpoint="api/" 
-              ></cap-widget>
+              <cap-widget id="floating" onsolve="console.log(`token: ${event.detail.token}`)"
+                data-cap-api-endpoint="api/"></cap-widget>
               <button data-cap-floating="#floating" data-cap-floating-position="bottom" class="btn primary">
                 Trigger floating mode
               </button>
@@ -63,11 +354,11 @@
           </div>
         </div>
       </div>
-      
+
       <div class="section" id="api">
         <h2>API Reference</h2>
         <p>Simple REST API for challenge creation, redemption, and validation.</p>
-        
+
         <div class="api-endpoint">
           <h3>Create Challenge</h3>
           <div>
@@ -75,16 +366,16 @@
             <span class="endpoint-url">/api/challenge</span>
           </div>
           <div class="code-block">{
-  "token": "abc123:xyz789",
-  "challenge": {
-    "c": 5,
-    "s": 3,
-    "d": 2
-  },
-  "expires": 1234567890
-}</div>
+            "token": "abc123:xyz789",
+            "challenge": {
+            "c": 5,
+            "s": 3,
+            "d": 2
+            },
+            "expires": 1234567890
+            }</div>
         </div>
-        
+
         <div class="api-endpoint">
           <h3>Redeem Challenge</h3>
           <div>
@@ -92,19 +383,19 @@
             <span class="endpoint-url">/api/redeem</span>
           </div>
           <div class="code-block">Request:
-{
-  "token": "abc123:xyz789",
-  "solutions": [1, 2, 3, 4, 5]
-}
+            {
+            "token": "abc123:xyz789",
+            "solutions": [1, 2, 3, 4, 5]
+            }
 
-Response:
-{
-  "success": true,
-  "token": "new-token",
-  "expires": 1234567890
-}</div>
+            Response:
+            {
+            "success": true,
+            "token": "new-token",
+            "expires": 1234567890
+            }</div>
         </div>
-        
+
         <div class="api-endpoint">
           <h3>Validate Token</h3>
           <div>
@@ -112,76 +403,205 @@ Response:
             <span class="endpoint-url">/api/validate</span>
           </div>
           <div class="code-block">Request:
-{
-  "token": "your-token",
-  "keepToken": false
-}
+            {
+            "token": "your-token",
+            "keepToken": false
+            }
 
-Response:
-{
-  "success": true
-}</div>
+            Response:
+            {
+            "success": true
+            }</div>
         </div>
       </div>
-      
+
       <div class="section" id="floating-mode">
         <h2>Floating Mode Integration</h2>
         <p>Trigger CAPTCHA on demand with a floating modal overlay.</p>
-        
+
         <div class="code-tabs">
           <div class="tab-buttons">
             <button class="tab-btn active" data-tab="floating-html">HTML</button>
             <button class="tab-btn" data-tab="floating-js">JavaScript</button>
           </div>
-          
+
           <div class="tab-content active" data-tab="floating-html">
             <div class="code-block">&lt;script src="https://captcha.gurl.eu.org/cap.min.js"&gt;&lt;/script&gt;
-&lt;script src="https://captcha.gurl.eu.org/cap-floating.min.js"&gt;&lt;/script&gt;
+              &lt;script src="https://captcha.gurl.eu.org/cap-floating.min.js"&gt;&lt;/script&gt;
 
-&lt;!-- Hidden CAPTCHA widget --&gt;
-&lt;cap-widget 
-  id="floating" 
-  onsolve="console.log(`token: ${event.detail.token}`)" 
-  data-cap-api-endpoint="https://captcha.gurl.eu.org/api/" 
-&gt;&lt;/cap-widget&gt;
+              &lt;!-- Hidden CAPTCHA widget --&gt;
+              &lt;cap-widget
+              id="floating"
+              onsolve="console.log(`token: ${event.detail.token}`)"
+              data-cap-api-endpoint="https://captcha.gurl.eu.org/api/"
+              &gt;&lt;/cap-widget&gt;
 
-&lt;!-- Trigger button --&gt;
-&lt;button data-cap-floating="#floating" data-cap-floating-position="bottom"&gt;
-  Trigger floating mode
-&lt;/button&gt;</div>
+              &lt;!-- Trigger button --&gt;
+              &lt;button data-cap-floating="#floating" data-cap-floating-position="bottom"&gt;
+              Trigger floating mode
+              &lt;/button&gt;</div>
           </div>
-          
+
           <div class="tab-content" data-tab="floating-js">
             <div class="code-block">const floatingWidget = document.querySelector("#floating");
 
-floatingWidget.addEventListener("solve", async function (e) {
-  const token = e.detail.token;
-  console.log("CAPTCHA solved, token:", token);
-  
-  const result = await fetch('https://captcha.gurl.eu.org/api/validate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ 
-      token: token, 
-      keepToken: false 
-    })
-  });
-  
-  const validation = await result.json();
-  console.log("Validation result:", validation);
-});</div>
+              floatingWidget.addEventListener("solve", async function (e) {
+              const token = e.detail.token;
+              console.log("CAPTCHA solved, token:", token);
+
+              const result = await fetch('https://captcha.gurl.eu.org/api/validate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+              token: token,
+              keepToken: false
+              })
+              });
+
+              const validation = await result.json();
+              console.log("Validation result:", validation);
+              });</div>
           </div>
         </div>
       </div>
     </div>
-    
+
     <div class="footer">
       <p>Built with Cloudflare Workers</p>
     </div>
   </div>
 
-  <script src="/cap.min.js"></script>
-  <script src="/cap-floating.min.js"></script>
-  <script src="/script.js"></script>
+  <script src="https://registry.npmmirror.com/@cap.js/widget/0.1.34/files/cap.min.js"></script>
+  <script src="https://registry.npmmirror.com/@cap.js/widget/0.1.34/files/cap-floating.min.js"></script>
+  <script>
+    (function () {
+      try {
+        const storedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = storedTheme || (prefersDark ? 'dark' : 'light');
+        document.body.setAttribute('data-theme', theme);
+      } catch (_) { }
+    })();
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const toggle = document.getElementById('themeToggle');
+      if (toggle) {
+        const SUN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
+        const MOON_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
+
+        const setIcon = () => {
+          const isDark = document.body.getAttribute('data-theme') === 'dark';
+          toggle.innerHTML = isDark ? MOON_ICON : SUN_ICON;
+          toggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        };
+
+        setIcon();
+
+        toggle.addEventListener('click', () => {
+          const next = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          document.body.setAttribute('data-theme', next);
+          try { localStorage.setItem('theme', next); } catch (_) { }
+          setIcon();
+        });
+      }
+
+      const widget = document.querySelector("#cap");
+      const resetButton = document.getElementById("resetCaptcha");
+
+      if (widget) {
+        widget.addEventListener("solve", async function (e) {
+          const token = e.detail.token;
+          console.log('CAPTCHA solved, token:', token);
+
+          try {
+            const result = await fetch('api/validate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                token: token,
+                keepToken: false
+              })
+            });
+            const validation = await result.json();
+            console.log('Validation result:', validation);
+
+            if (validation.success) {
+              document.getElementById('demoStatus').innerHTML = '<div class="status-message status-success">✅ CAPTCHA verified successfully!</div>';
+            } else {
+              document.getElementById('demoStatus').innerHTML = '<div class="status-message status-error">❌ CAPTCHA verification failed.</div>';
+            }
+          } catch (error) {
+            console.error('Validation error:', error);
+            document.getElementById('demoStatus').innerHTML = '<div class="status-message status-error">❌ Validation error occurred.</div>';
+          }
+        });
+
+        widget.addEventListener("error", function (e) {
+          console.error('CAPTCHA error:', e.detail);
+          document.getElementById('demoStatus').innerHTML = '<div class="status-message status-error">❌ CAPTCHA loading error.</div>';
+        });
+      }
+
+      if (resetButton) {
+        resetButton.addEventListener("click", function () {
+          const widget = document.querySelector("#cap");
+          if (widget) {
+            widget.reset();
+            document.getElementById('demoStatus').innerHTML = '<div class="status-message">Complete the CAPTCHA above to see it in action</div>';
+          }
+        });
+      }
+
+      const floatingWidget = document.querySelector("#floating");
+
+      if (floatingWidget) {
+        floatingWidget.addEventListener("solve", async function (e) {
+          const token = e.detail.token;
+          console.log('Floating CAPTCHA solved, token:', token);
+
+          try {
+            const result = await fetch('api/validate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                token: token,
+                keepToken: false
+              })
+            });
+            const validation = await result.json();
+            console.log('Floating validation result:', validation);
+
+            if (validation.success) {
+              document.getElementById('floatingStatus').innerHTML = '<div class="status-message status-success">✅ Floating CAPTCHA verified successfully!</div>';
+            } else {
+              document.getElementById('floatingStatus').innerHTML = '<div class="status-message status-error">❌ Floating CAPTCHA verification failed.</div>';
+            }
+          } catch (error) {
+            console.error('Floating validation error:', error);
+            document.getElementById('floatingStatus').innerHTML = '<div class="status-message status-error">❌ Floating validation error occurred.</div>';
+          }
+        });
+
+        floatingWidget.addEventListener("error", function (e) {
+          console.error('Floating CAPTCHA error:', e.detail);
+          document.getElementById('floatingStatus').innerHTML = '<div class="status-message status-error">❌ Floating CAPTCHA loading error.</div>';
+        });
+      }
+
+      document.querySelectorAll('.tab-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const targetTab = button.dataset.tab;
+          const parentTabs = button.closest('.code-tabs');
+
+          parentTabs.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+          parentTabs.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+          button.classList.add('active');
+          parentTabs.querySelector(`.tab-content[data-tab="${targetTab}"]`).classList.add('active');
+        });
+      });
+    });
+
+  </script>
 </body>
+
 </html>
