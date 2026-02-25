@@ -27,15 +27,6 @@
 				"name": "CAP_STORAGE"
 			}
 		]
-	},
-	"observability": {
-		"logs": {
-		"enabled": true,
-		"invocation_logs": true
-		},
-		"traces": {
-		"enabled": true
-		}
 	}
 	/**
 	 * Smart Placement
