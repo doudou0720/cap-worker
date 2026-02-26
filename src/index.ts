@@ -14,6 +14,16 @@ async function hashToken(token: string): Promise<string> {
   return `${id}:${hash}`;
 }
 
+// Utility function to extract domain from URL
+function extractDomain(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname;
+  } catch {
+    return url;
+  }
+}
+
 interface Challenge {
   challenge: {
     c: number;
@@ -50,8 +60,10 @@ const CHALLENGE_CONFIG = {
 } as const;
 
 const ALLOWED_ORIGINS = [
-  'https://captcha.neoserver.eu.cc/',
-  'https://captcha.doudou0528.dpdns.org/',
+  'captcha.neoserver.eu.cc',
+  'captcha.doudou0528.dpdns.org',
+  'localhost',
+  '127.0.0.1',
 ] as const;
 
 
@@ -197,11 +209,14 @@ export default {
     
     // Check if origin is allowed
     const origin = request.headers.get('Origin');
-    if (origin && !ALLOWED_ORIGINS.includes(origin as any)) {
-      return new Response(JSON.stringify({ success: false, error: 'Access denied: Origin not allowed' }), {
-        status: 403,
-        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
-      });
+    if (origin) {
+      const originDomain = extractDomain(origin);
+      if (!ALLOWED_ORIGINS.includes(originDomain as any)) {
+        return new Response(JSON.stringify({ success: false, error: 'Access denied: Origin not allowed' }), {
+          status: 403,
+          headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+        });
+      }
     }
 
     // Get storage instance (single instance)
@@ -211,9 +226,16 @@ export default {
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
       const origin = request.headers.get('Origin');
+      let allowOrigin = "";
+      if (origin) {
+        const originDomain = extractDomain(origin);
+        if (ALLOWED_ORIGINS.includes(originDomain as any)) {
+          allowOrigin = origin;
+        }
+      }
       const corsHeaders = {
         ...CORS_HEADERS,
-        "Access-Control-Allow-Origin": origin && ALLOWED_ORIGINS.includes(origin as any) ? origin : "",
+        "Access-Control-Allow-Origin": allowOrigin,
       };
       return new Response(null, { headers: corsHeaders });
     }
