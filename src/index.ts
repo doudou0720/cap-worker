@@ -36,7 +36,6 @@ const CHALLENGE_PATH = `${API_BASE}/challenge`;
 const REDEEM_PATH = `${API_BASE}/redeem`;
 const VALIDATE_PATH = `${API_BASE}/validate`;
 const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 } as const;
@@ -49,6 +48,11 @@ const CHALLENGE_CONFIG = {
   challengeSize: 32,
   challengeDifficulty: 4,
 } as const;
+
+const ALLOWED_ORIGINS = [
+  'https://captcha.neoserver.eu.cc/',
+  'https://captcha.doudou0528.dpdns.org/',
+] as const;
 
 
 // Storage Durable Object implementation that hosts a single Cap instance
@@ -190,6 +194,15 @@ interface Env {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    
+    // Check if origin is allowed
+    const origin = request.headers.get('Origin');
+    if (origin && !ALLOWED_ORIGINS.includes(origin as any)) {
+      return new Response(JSON.stringify({ success: false, error: 'Access denied: Origin not allowed' }), {
+        status: 403,
+        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+      });
+    }
 
     // Get storage instance (single instance)
     const storageId = env.CAP_STORAGE.idFromName("cap-storage");
@@ -197,7 +210,12 @@ export default {
 
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
-      return new Response(null, { headers: CORS_HEADERS });
+      const origin = request.headers.get('Origin');
+      const corsHeaders = {
+        ...CORS_HEADERS,
+        "Access-Control-Allow-Origin": origin && ALLOWED_ORIGINS.includes(origin as any) ? origin : "",
+      };
+      return new Response(null, { headers: corsHeaders });
     }
 
     // Route: POST /api/challenge
@@ -211,7 +229,11 @@ export default {
       }
       
       return new Response(JSON.stringify(challenge), {
-        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+        headers: {
+          "Content-Type": "application/json",
+          ...CORS_HEADERS,
+          "Access-Control-Allow-Origin": origin || "",
+        },
       });
     }
 
@@ -223,7 +245,11 @@ export default {
       } catch {
         return new Response(JSON.stringify({ success: false, error: "Invalid request body" }), {
           status: 400,
-          headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+          headers: {
+            "Content-Type": "application/json",
+            ...CORS_HEADERS,
+            "Access-Control-Allow-Origin": origin || "",
+          },
         });
       }
 
@@ -231,7 +257,11 @@ export default {
       if (!token || !solutions || !Array.isArray(solutions)) {
         return new Response(JSON.stringify({ success: false, error: "Missing token or solutions" }), {
           status: 400,
-          headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+          headers: {
+            "Content-Type": "application/json",
+            ...CORS_HEADERS,
+            "Access-Control-Allow-Origin": origin || "",
+          },
         });
       }
 
@@ -240,7 +270,11 @@ export default {
       if (!challenge) {
         return new Response(JSON.stringify({ success: false, error: "Challenge not found" }), {
           status: 404,
-          headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+          headers: {
+            "Content-Type": "application/json",
+            ...CORS_HEADERS,
+            "Access-Control-Allow-Origin": origin || "",
+          },
         });
       }
 
@@ -261,7 +295,14 @@ export default {
             if (msg === ERR_EXPIRED) {
               return new Response(
                 JSON.stringify({ success: false, error: "Challenge expired" }),
-                { status: 410, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
+                { 
+                  status: 410, 
+                  headers: {
+                    "Content-Type": "application/json", 
+                    ...CORS_HEADERS,
+                    "Access-Control-Allow-Origin": origin || "",
+                  },
+                }
               );
             }
           }
@@ -269,13 +310,24 @@ export default {
           // already redeemed the challenge, since we check for existence beforehand.
           return new Response(
             JSON.stringify({ success: false, error: "Challenge already redeemed" }),
-            { status: 409, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
+            { 
+              status: 409, 
+              headers: {
+                "Content-Type": "application/json", 
+                ...CORS_HEADERS,
+                "Access-Control-Allow-Origin": origin || "",
+              },
+            }
           );
         }
       }
 
       return new Response(JSON.stringify(result), {
-        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+        headers: {
+          "Content-Type": "application/json",
+          ...CORS_HEADERS,
+          "Access-Control-Allow-Origin": origin || "",
+        },
       });
     }
 
@@ -287,7 +339,11 @@ export default {
       } catch {
         return new Response(JSON.stringify({ success: false, error: "Invalid request body" }), {
           status: 400,
-          headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+          headers: {
+            "Content-Type": "application/json",
+            ...CORS_HEADERS,
+            "Access-Control-Allow-Origin": origin || "",
+          },
         });
       }
 
@@ -295,7 +351,11 @@ export default {
       if (!token) {
         return new Response(JSON.stringify({ success: false, error: "Missing token" }), {
           status: 400,
-          headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+          headers: {
+            "Content-Type": "application/json",
+            ...CORS_HEADERS,
+            "Access-Control-Allow-Origin": origin || "",
+          },
         });
       }
 
@@ -305,7 +365,11 @@ export default {
       try {
         await storageStub.validateAndConsumeToken(tokenHash, keepToken);
         return new Response(JSON.stringify({ success: true }), {
-          headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+          headers: {
+            "Content-Type": "application/json",
+            ...CORS_HEADERS,
+            "Access-Control-Allow-Origin": origin || "",
+          },
         });
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -313,27 +377,45 @@ export default {
           if (msg === ERR_NOT_FOUND) {
             return new Response(JSON.stringify({ success: false, error: "Token not found" }), {
               status: 404,
-              headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+              headers: {
+                "Content-Type": "application/json",
+                ...CORS_HEADERS,
+                "Access-Control-Allow-Origin": origin || "",
+              },
             });
           }
           if (msg === ERR_EXPIRED) {
             return new Response(JSON.stringify({ success: false, error: "Token expired" }), {
               status: 410,
-              headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+              headers: {
+                "Content-Type": "application/json",
+                ...CORS_HEADERS,
+                "Access-Control-Allow-Origin": origin || "",
+              },
             });
           }
         }
 
         return new Response(
           JSON.stringify({ success: false, error: "Token already consumed" }),
-          { status: 409, headers: { "Content-Type": "application/json", ...CORS_HEADERS } },
+          {
+            status: 409,
+            headers: {
+              "Content-Type": "application/json",
+              ...CORS_HEADERS,
+              "Access-Control-Allow-Origin": origin || "",
+            },
+          }
         );
       }
     }
 
     return new Response("Not Found", {
       status: 404,
-      headers: CORS_HEADERS,
+      headers: {
+        ...CORS_HEADERS,
+        "Access-Control-Allow-Origin": origin || "",
+      },
     });
   },
 } satisfies ExportedHandler<Env>;
