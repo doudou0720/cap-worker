@@ -13,6 +13,6 @@
 		"wrangler": "^4.26.0"
 	},
 	"dependencies": {
-		"@cap.js/server": "^2.0.0"
+		"@cap.js/server": "^4.0.0"
 	}
 }
