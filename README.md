@@ -24,16 +24,19 @@ CAP Worker is a next-generation CAPTCHA service powered by Cloudflare Workers, u
 CAP Worker leverages Cloudflare's cutting-edge infrastructure to deliver a robust and scalable CAPTCHA solution:
 
 #### Distributed Architecture
+
 - **Durable Objects (DO)**: Challenge state management with strong consistency guarantees
-- **Edge Workers**: Computational verification distributed across 250+ global locations  
+- **Edge Workers**: Computational verification distributed across 250+ global locations
 - **Automatic Scaling**: Seamless horizontal scaling based on traffic demand
 
 #### Performance & Concurrency
+
 - **Conflict Prevention**: Durable Objects ensure atomic operations and prevent race conditions
 - **Load Distribution**: Multiple Worker instances handle verification workload in parallel
 - **Zero Cold Start**: Edge-optimized deployment minimizes latency spikes
 
 #### Proof of Work Pipeline
+
 1. **Challenge Generation**: Cryptographically secure challenges created via Durable Objects
 2. **Distributed Verification**: SHA-256 PoW computation handled by auto-scaling Workers
 3. **State Synchronization**: Challenge lifecycle managed with strong consistency
@@ -57,10 +60,7 @@ Add the CAP Worker script to your HTML:
 Add the CAPTCHA widget to your form:
 
 ```html
-<cap-widget 
-  id="cap" 
-  data-cap-api-endpoint="https://captcha.gurl.eu.org/api/">
-</cap-widget>
+<cap-widget id="cap" data-cap-api-endpoint="https://captcha.gurl.eu.org/api/"> </cap-widget>
 ```
 
 #### 3. JavaScript Integration
@@ -71,23 +71,23 @@ Handle CAPTCHA events:
 const widget = document.querySelector("#cap");
 
 widget.addEventListener("solve", async function (e) {
-  const token = e.detail.token;
-  
-  // Validate the token server-side
-  const result = await fetch('https://captcha.gurl.eu.org/api/validate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ 
-      token: token, 
-      keepToken: false 
-    })
-  });
-  
-  const validation = await result.json();
-  if (validation.success) {
-    // CAPTCHA verified successfully
-    console.log("CAPTCHA solved!");
-  }
+	const token = e.detail.token;
+
+	// Validate the token server-side
+	const result = await fetch("https://captcha.gurl.eu.org/api/validate", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			token: token,
+			keepToken: false,
+		}),
+	});
+
+	const validation = await result.json();
+	if (validation.success) {
+		// CAPTCHA verified successfully
+		console.log("CAPTCHA solved!");
+	}
 });
 ```
 
@@ -96,51 +96,54 @@ widget.addEventListener("solve", async function (e) {
 Example Node.js server-side validation:
 
 ```javascript
-app.post('/protected-endpoint', async (req, res) => {
-  const { captchaToken } = req.body;
-  
-  try {
-    const validation = await fetch('https://captcha.gurl.eu.org/api/validate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        token: captchaToken,
-        keepToken: false
-      })
-    });
-    
-    const result = await validation.json();
-    
-    if (result.success) {
-      // CAPTCHA verified, proceed with protected operation
-      res.json({ message: 'Access granted' });
-    } else {
-      res.status(400).json({ error: 'CAPTCHA verification failed' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Validation error' });
-  }
+app.post("/protected-endpoint", async (req, res) => {
+	const { captchaToken } = req.body;
+
+	try {
+		const validation = await fetch("https://captcha.gurl.eu.org/api/validate", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				token: captchaToken,
+				keepToken: false,
+			}),
+		});
+
+		const result = await validation.json();
+
+		if (result.success) {
+			// CAPTCHA verified, proceed with protected operation
+			res.json({ message: "Access granted" });
+		} else {
+			res.status(400).json({ error: "CAPTCHA verification failed" });
+		}
+	} catch (error) {
+		res.status(500).json({ error: "Validation error" });
+	}
 });
 ```
 
 ### 🔌 API Reference
 
 #### Generate Challenge
+
 ```http
 POST /api/challenge
 Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
-  "token": "785975238a3c4f0c1b0c39ed75e6e4cc152436cc0d94363de6",
-  "challenge": "{ \"c\": 50, \"s\": 32, \"d\": 4 }",
-  "expires": 1753924498818
+	"token": "785975238a3c4f0c1b0c39ed75e6e4cc152436cc0d94363de6",
+	"challenge": "{ \"c\": 50, \"s\": 32, \"d\": 4 }",
+	"expires": 1753924498818
 }
 ```
 
 #### Verify Solution
+
 ```http
 POST /api/redeem
 Content-Type: application/json
@@ -152,14 +155,16 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
-  "success": true,
-  "token": "785975238a3c4f0c1b0c39:ed75e6e4cc152436cc0d94363de6"
+	"success": true,
+	"token": "785975238a3c4f0c1b0c39:ed75e6e4cc152436cc0d94363de6"
 }
 ```
 
 #### Validate Token
+
 ```http
 POST /api/validate
 Content-Type: application/json
@@ -171,9 +176,10 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
-  "success": true
+	"success": true
 }
 ```
 
@@ -181,29 +187,33 @@ Content-Type: application/json
 
 #### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - Cloudflare account
 - Wrangler CLI
 
 #### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/your-username/cap-worker.git
 cd cap-worker
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Configure Wrangler:
+
 ```bash
 wrangler auth login
 ```
 
 4. Start development server:
+
 ```bash
 npm run dev
 ```
@@ -218,13 +228,15 @@ npm run dev
 ### 🚀 Deployment
 
 1. Update `wrangler.jsonc` with your domain:
+
 ```json
 {
-  "route": "your-domain.com/*"
+	"route": "your-domain.com/*"
 }
 ```
 
 2. Deploy to Cloudflare Workers:
+
 ```bash
 npm run deploy
 ```
@@ -281,16 +293,19 @@ CAP Worker 是基于 Cloudflare Workers 构建的下一代验证码服务，采�
 CAP Worker 基于 Cloudflare 尖端基础设施，提供稳健且可扩展的验证码解决方案：
 
 #### 分布式架构
+
 - **持久化对象 (DO)**: 挑战状态管理，具备强一致性保证
 - **边缘 Workers**: 计算验证分布在全球 250+ 个位置
 - **自动扩缩容**: 根据流量需求无缝水平扩展
 
 #### 性能与并发控制
+
 - **冲突防护**: 持久化对象确保原子操作，防止竞态条件
-- **负载分发**: 多个 Worker 实例并行处理验证工作负载  
+- **负载分发**: 多个 Worker 实例并行处理验证工作负载
 - **零冷启动**: 边缘优化部署，最小化延迟峰值
 
 #### 工作量证明流水线
+
 1. **挑战生成**: 通过持久化对象创建密码学安全的挑战
 2. **分布式验证**: 自动扩展的 Workers 处理 SHA-256 PoW 计算
 3. **状态同步**: 通过强一致性管理挑战生命周期
@@ -314,10 +329,7 @@ CAP Worker 基于 Cloudflare 尖端基础设施，提供稳健且可扩展的验
 在表单中添加验证码组件：
 
 ```html
-<cap-widget 
-  id="cap" 
-  data-cap-api-endpoint="https://captcha.gurl.eu.org/api/">
-</cap-widget>
+<cap-widget id="cap" data-cap-api-endpoint="https://captcha.gurl.eu.org/api/"> </cap-widget>
 ```
 
 #### 3. JavaScript 集成
@@ -328,23 +340,23 @@ CAP Worker 基于 Cloudflare 尖端基础设施，提供稳健且可扩展的验
 const widget = document.querySelector("#cap");
 
 widget.addEventListener("solve", async function (e) {
-  const token = e.detail.token;
-  
-  // 服务端验证令牌
-  const result = await fetch('https://captcha.gurl.eu.org/api/validate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ 
-      token: token, 
-      keepToken: false 
-    })
-  });
-  
-  const validation = await result.json();
-  if (validation.success) {
-    // 验证码验证成功
-    console.log("验证码通过！");
-  }
+	const token = e.detail.token;
+
+	// 服务端验证令牌
+	const result = await fetch("https://captcha.gurl.eu.org/api/validate", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			token: token,
+			keepToken: false,
+		}),
+	});
+
+	const validation = await result.json();
+	if (validation.success) {
+		// 验证码验证成功
+		console.log("验证码通过！");
+	}
 });
 ```
 
@@ -353,51 +365,54 @@ widget.addEventListener("solve", async function (e) {
 Node.js 服务端验证示例：
 
 ```javascript
-app.post('/protected-endpoint', async (req, res) => {
-  const { captchaToken } = req.body;
-  
-  try {
-    const validation = await fetch('https://captcha.gurl.eu.org/api/validate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        token: captchaToken,
-        keepToken: false
-      })
-    });
-    
-    const result = await validation.json();
-    
-    if (result.success) {
-      // 验证码通过，执行受保护的操作
-      res.json({ message: '访问授权' });
-    } else {
-      res.status(400).json({ error: '验证码验证失败' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: '验证错误' });
-  }
+app.post("/protected-endpoint", async (req, res) => {
+	const { captchaToken } = req.body;
+
+	try {
+		const validation = await fetch("https://captcha.gurl.eu.org/api/validate", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				token: captchaToken,
+				keepToken: false,
+			}),
+		});
+
+		const result = await validation.json();
+
+		if (result.success) {
+			// 验证码通过，执行受保护的操作
+			res.json({ message: "访问授权" });
+		} else {
+			res.status(400).json({ error: "验证码验证失败" });
+		}
+	} catch (error) {
+		res.status(500).json({ error: "验证错误" });
+	}
 });
 ```
 
 ### 🔌 API 参考
 
 #### 生成挑战
+
 ```http
 POST /api/challenge
 Content-Type: application/json
 ```
 
 **响应:**
+
 ```json
 {
-  "token": "785975238a3c4f0c1b0c39ed75e6e4cc152436cc0d94363de6",
-  "challenge": "{ \"c\": 50, \"s\": 32, \"d\": 4 }",
-  "expires": 1753924498818
+	"token": "785975238a3c4f0c1b0c39ed75e6e4cc152436cc0d94363de6",
+	"challenge": "{ \"c\": 50, \"s\": 32, \"d\": 4 }",
+	"expires": 1753924498818
 }
 ```
 
 #### 验证解答
+
 ```http
 POST /api/redeem
 Content-Type: application/json
@@ -409,14 +424,16 @@ Content-Type: application/json
 ```
 
 **响应:**
+
 ```json
 {
-  "success": true,
-  "token": "785975238a3c4f0c1b0c39:ed75e6e4cc152436cc0d94363de6"
+	"success": true,
+	"token": "785975238a3c4f0c1b0c39:ed75e6e4cc152436cc0d94363de6"
 }
 ```
 
 #### 验证令牌
+
 ```http
 POST /api/validate
 Content-Type: application/json
@@ -428,9 +445,10 @@ Content-Type: application/json
 ```
 
 **响应:**
+
 ```json
 {
-  "success": true
+	"success": true
 }
 ```
 
@@ -438,29 +456,33 @@ Content-Type: application/json
 
 #### 环境要求
 
-- Node.js 18+ 
+- Node.js 18+
 - Cloudflare 账户
 - Wrangler CLI
 
 #### 安装步骤
 
 1. 克隆仓库：
+
 ```bash
 git clone https://github.com/your-username/cap-worker.git
 cd cap-worker
 ```
 
 2. 安装依赖：
+
 ```bash
 pnpm install
 ```
 
 3. 配置 Wrangler：
+
 ```bash
 wrangler auth login
 ```
 
 4. 启动开发服务器：
+
 ```bash
 pnpm run dev
 ```
@@ -475,13 +497,15 @@ pnpm run dev
 ### 🚀 部署
 
 1. 在 `wrangler.jsonc` 中更新您的域名：
+
 ```json
 {
-  "route": "your-domain.com/*"
+	"route": "your-domain.com/*"
 }
 ```
 
 2. 部署到 Cloudflare Workers：
+
 ```bash
 pnpm run deploy
 ```
@@ -511,5 +535,5 @@ cap-worker/
 
 - [在线演示](https://captcha.gurl.eu.org/)
 - [Cloudflare Workers](https://workers.cloudflare.com/)
-- [@cap.js/server](https://www.npmjs.com/package/@cap.js/server) 
+- [@cap.js/server](https://www.npmjs.com/package/@cap.js/server)
 - [@cap.js/client](https://www.npmjs.com/package/@cap.js/client)
