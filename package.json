@@ -6,9 +6,12 @@
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
-		"cf-typegen": "wrangler types"
+		"cf-typegen": "wrangler types",
+		"lint": "oxlint",
+		"lint:fix": "oxlint --fix"
 	},
 	"devDependencies": {
+		"oxlint": "^1.51.0",
 		"typescript": "^5.5.2",
 		"wrangler": "^4.26.0"
 	},

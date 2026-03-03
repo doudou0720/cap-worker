@@ -175,9 +175,9 @@ function createCapInstance() {
   });
 }
 
-function createChallenge(options?: { challengeCount?: number; challengeSize?: number; challengeDifficulty?: number; expiresMs?: number; store?: boolean }) {
+async function createChallenge(options?: { challengeCount?: number; challengeSize?: number; challengeDifficulty?: number; expiresMs?: number; store?: boolean }) {
   const cap = createCapInstance();
-  return cap.createChallenge(options);
+  return await cap.createChallenge(options);
 }
 
 async function verifyChallengeSolution(challenge: Challenge, solutions: number[]) {
@@ -243,7 +243,7 @@ export default {
     // Route: POST /api/challenge
     if (request.method === "POST" && url.pathname === CHALLENGE_PATH) {
       // Create challenge directly in Worker
-      const challenge = createChallenge(CHALLENGE_CONFIG);
+      const challenge = await createChallenge(CHALLENGE_CONFIG);
       
       // Store challenge in storage instance (check if token exists)
       if (challenge.token) {
