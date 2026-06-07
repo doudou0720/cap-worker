@@ -16,7 +16,7 @@
 		"@cap.js/server": "^4.0.0"
 	},
 	"devDependencies": {
-		"oxfmt": "^0.51.0",
+		"oxfmt": "^0.53.0",
 		"oxlint": "^1.51.0",
 		"typescript": "^6.0.0",
 		"wrangler": "^4.26.0"
